@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_Project_UnamedGame", "AI_Project_UnamedGame\AI_Project_UnamedGame.csproj", "{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adversarial_Search", "Adversial_Search\Adversarial_Search.csproj", "{F038B27B-6E2E-4383-AB1B-1F343B36B997}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A45315A1-F6B3-4C4C-AAED-65475F9309E2}
+	EndGlobalSection
+EndGlobal
