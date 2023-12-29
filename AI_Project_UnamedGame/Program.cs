@@ -1,5 +1,4 @@
 ﻿using Adversarial_Search;
-using System.Reflection;
 
 Game game = new(PrintEvent, OEvent, XEvent);
 game.Play();
@@ -19,8 +18,8 @@ void XEvent(object? sender, EventArgs e)
     Console.WriteLine("Player X Turn: ");
 
     var game = (sender as Game)!;
-    //var board = ComputerTurn(Player.X , game.CurrentBoard);
-    var board = HumanTurn(Player.X, game.CurrentBoard.State);
+    var board = ComputerTurn(Player.X , game.CurrentBoard.State);
+    //var board = HumanTurn(Player.X, game.CurrentBoard.State);
     game.SetState(board?.State);
 }
 
@@ -30,7 +29,8 @@ void OEvent(object? sender, EventArgs e)
 
     var game = (sender as Game)!;
     var board = HumanTurn(Player.O, game.CurrentBoard.State);
-    game.SetState(board?.State);    
+    //var board = ComputerTurn(Player.O, game.CurrentBoard.State);
+    game.SetState(board?.State);
 }
 
 Board? HumanTurn(Player Turn, Player?[,] state)
@@ -65,11 +65,10 @@ Board? HumanTurn(Player Turn, Player?[,] state)
     return new HumanBoard(state, (x, y), Turn);
 }
 
-Board? ComputerTurn(Player Turn, Board currentBoard)
+Board? ComputerTurn(Player Turn, Player?[,] state)
 {
-    return new NPCBoard(currentBoard.State, Turn, false).Select();
+    return new NPCBoard(state, Turn, false).Select();
 }
-
 
 void Print(Player?[,] State)
 {
