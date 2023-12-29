@@ -7,6 +7,8 @@ public class Game
     public EventHandler Print { get; set; }
     public EventHandler OTurn { get; set; }
     public EventHandler XTurn { get; set; }
+    private bool XDone = false;
+    private bool ODone = false;
 
     public Game(EventHandler Print, EventHandler OTurn, EventHandler XTurn)           
     {
@@ -21,31 +23,42 @@ public class Game
         state[1, 1] = Player.X;
         state[1, 3] = Player.O;
 
-        //state[2, 2] = Player.X;
-        //state[0, 3] = Player.O;
-        CurrentBoard = new Board(state);
-
+        state[2, 2] = Player.X;
+        state[0, 3] = Player.O;
+        CurrentBoard = new Board(state , CurrentTurn);
     }
 
     public void Play()
     {
-        while (true)
+        while (!XDone || !ODone)
         {
             Print.Invoke(CurrentBoard, new EventArgs());
-            if (CurrentTurn == Player.O)
+            if (!ODone && CurrentTurn == Player.O)
             {
                 OTurn.Invoke(this, new EventArgs());
-            } else
+            } else if(!XDone && CurrentTurn == Player.X)
             {
                 XTurn.Invoke(this, new EventArgs());
             }
             CurrentTurn = CurrentTurn.Flip();
         }
+        Print.Invoke(CurrentBoard, new EventArgs());
     }
 
-    public void SetBoard(Board board)
+    public void SetState(Player?[,]? State)
     {
-        CurrentBoard = board;
+        if (State is null)
+        {
+            if (CurrentTurn == Player.X)
+            {
+                XDone = true;
+            } else
+            {
+                ODone = true;
+            }
+            return;
+        }
+        CurrentBoard = new Board(State,CurrentTurn);
     }
 
 }

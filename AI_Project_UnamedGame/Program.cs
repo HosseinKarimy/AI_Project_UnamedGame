@@ -1,4 +1,5 @@
 ﻿using Adversarial_Search;
+using System.Reflection;
 
 Game game = new(PrintEvent, OEvent, XEvent);
 game.Play();
@@ -17,26 +18,57 @@ void XEvent(object? sender, EventArgs e)
 {
     Console.WriteLine("Player X Turn: ");
 
-    var board = new NPCBoard((sender as Game)!.CurrentBoard.State, Player.X, false).Select();
-    (sender as Game)!.SetBoard(board);
+    var game = (sender as Game)!;
+    //var board = ComputerTurn(Player.X , game.CurrentBoard);
+    var board = HumanTurn(Player.X, game.CurrentBoard.State);
+    game.SetState(board?.State);
 }
 
 void OEvent(object? sender, EventArgs e)
 {
     Console.WriteLine("Player O Turn: ");
-    Console.Write("     Row: ");
-    var playerChose = Console.ReadLine();
-    var x = int.Parse(playerChose);
-    Console.Write("     Column: ");
-    playerChose = Console.ReadLine();
-    var y = int.Parse(playerChose);
 
-    var board = new HumanBoard((sender as Game)!.CurrentBoard.State, (x, y), Player.O);
-    (sender as Game)!.SetBoard(board);
+    var game = (sender as Game)!;
+    var board = HumanTurn(Player.O, game.CurrentBoard.State);
+    game.SetState(board?.State);    
 }
 
+Board? HumanTurn(Player Turn, Player?[,] state)
+{
+    var board = new Board(state , Turn);
+    var Positions = board.GetAvailablePositions();
 
+    if (Positions is null || !Positions.Any())
+        return null;
 
+    int x, y;
+    do
+    {
+        x = -1;
+        y = -1;
+        try
+        {
+            Console.Write("  Row: ");
+            var playerChose = Console.ReadLine();
+            x = int.Parse(playerChose);
+            Console.Write("  Column: ");
+            playerChose = Console.ReadLine();
+            y = int.Parse(playerChose);
+        }
+        catch (Exception)
+        {
+            continue;
+        }
+
+    } while (!Positions.Contains((x, y)));
+
+    return new HumanBoard(state, (x, y), Turn);
+}
+
+Board? ComputerTurn(Player Turn, Board currentBoard)
+{
+    return new NPCBoard(currentBoard.State, Turn, false).Select();
+}
 
 
 void Print(Player?[,] State)
