@@ -7,10 +7,14 @@ public class NPCBoard : Board
     public int Value { get; private set; }
     private readonly bool IsEnemy;
     public NPCBoard? SelectedChild { get; set; }
+    private int? Alpha;
+    private int? Beta;
 
-    public NPCBoard(Player?[,] state, Player turn, bool isEnemy) : base(state,turn)
+    public NPCBoard(Player?[,] state, Player turn, bool isEnemy ,int? alpha ,int? beta) : base(state,turn)
     {
         IsEnemy = isEnemy;
+        Alpha = alpha;
+        Beta = beta;
         Value = CalculateValue();
     }
 
@@ -63,7 +67,19 @@ public class NPCBoard : Board
 
         foreach (var pos in availablePositions)
         {
-            yield return new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy);
+            if (Beta is not null && Alpha is not null && Beta <= Alpha)
+                break;         
+            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta);
+            if (IsEnemy)
+            {
+                Beta = Math.Min(child.Value, Beta ?? child.Value + 1);
+            } else
+            {
+                Alpha = Math.Max(child.Value, Alpha ?? child.Value - 1);
+            }
+            yield return child;
+        }
+    }    
         }
     }    
 }
