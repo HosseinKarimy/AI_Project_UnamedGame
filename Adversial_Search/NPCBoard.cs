@@ -9,12 +9,14 @@ public class NPCBoard : Board
     public NPCBoard? SelectedChild { get; set; }
     private int? Alpha;
     private int? Beta;
+    private readonly int? Depth;
 
-    public NPCBoard(Player?[,] state, Player turn, bool isEnemy ,int? alpha ,int? beta) : base(state,turn)
+    public NPCBoard(Player?[,] state, Player turn, bool isEnemy ,int? alpha ,int? beta , int? depth ) : base(state,turn)
     {
         IsEnemy = isEnemy;
         Alpha = alpha;
         Beta = beta;
+        Depth = depth;
         Value = CalculateValue();
     }
 
@@ -25,6 +27,24 @@ public class NPCBoard : Board
 
     private int CalculateValue()
     {
+
+        if (Depth == 0)
+        {
+            //Guess value of this State
+            Dictionary<Player, int> status = State.GetStatus();
+            var thisCount = status[Turn] + new Board(State , Turn).GetAvailablePositions()?.Count() ?? 0;
+            var otherCount = status[Turn.Flip()] + new Board(State, Turn.Flip()).GetAvailablePositions()?.Count() ?? 0;
+
+            if (IsEnemy)
+            {
+                Value = otherCount - thisCount;
+            } else
+            {
+                Value = thisCount - otherCount;
+            }
+            return Value;
+        }
+
         // get children
         var Children = GetChildren()?.ToList();
 
@@ -37,11 +57,13 @@ public class NPCBoard : Board
 
             if (IsEnemy)
             {
-                return otherCount - thisCount;
+                Value = otherCount - thisCount;
             } else
             {
-                return thisCount - otherCount;
+                Value = thisCount - otherCount;
             }
+            return Value;
+
         }
 
         SelectedChild = SelectChild(Children);
@@ -69,7 +91,7 @@ public class NPCBoard : Board
         {
             if (Beta is not null && Alpha is not null && Beta <= Alpha)
                 break;         
-            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta);
+            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta, Depth - 1);
             if (IsEnemy)
             {
                 Beta = Math.Min(child.Value, Beta ?? child.Value + 1);

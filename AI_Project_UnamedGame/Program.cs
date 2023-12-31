@@ -67,7 +67,7 @@ Board? HumanTurn(Player Turn, Player?[,] state)
 
 Board? ComputerTurn(Player Turn, Player?[,] state)
 {
-    return new NPCBoard(state, Turn, false).Select();
+    return new NPCBoard(state, Turn, false,null).Select();
 }
 
 void Print(Player?[,] State)
