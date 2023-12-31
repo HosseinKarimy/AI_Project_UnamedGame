@@ -1,25 +1,51 @@
 ﻿namespace Adversarial_Search;
 
-public class Board(Player?[,] state, Player Turn)
+public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPositions = null, (int x, int y)[]? playerOPositions = null)
 {
-    public Player?[,] State = state;
-    protected readonly Player Turn = Turn;
+    public Player?[,] State { get; set; } = state;
+    protected readonly Player Turn = turn;
+    public (int x, int y)[]? PlayerXPositions { get; set; } = playerXPositions;
+    public (int x, int y)[]? PlayerOPositions { get; set; } = playerOPositions;
 
     public IEnumerable<(int x, int y)>? GetAvailablePositions() //O(nm)
     {
+        if (PlayerXPositions is null || PlayerOPositions is null)
+        {
         for (int i = 0; i < State.GetLength(0); i++)
         {
             for (int j = 0; j < State.GetLength(1); j++)
             {
-                if (State[i, j] == Turn)
+                    if (State[i, j] == Player.X)
                 {
-                    foreach (var pos in AllowedNeighborOfPos((i, j)) ?? [])
+                        PlayerXPositions = (PlayerXPositions ??= []).Append((i, j)).ToArray();
+                    } else if (State[i, j] == Player.O)
                     {
+                        PlayerOPositions = (PlayerOPositions ??= []).Append((i, j)).ToArray();
+                    }
+                }
+            }
+        }        
+
+        if (Turn == Player.X)
+        {
+            foreach (var xPos in PlayerXPositions!)
+            {
+                foreach (var pos in AllowedNeighborOfPos(xPos) ?? [])
+                {
                         yield return pos;
                     };
                 }
+        } else
+        {
+            foreach (var xPos in PlayerOPositions!)
+            {
+                foreach (var pos in AllowedNeighborOfPos(xPos) ?? [])
+                {
+                    yield return pos;
+                };
             }
         }
+
     }
 
     private IEnumerable<(int x, int y)>? AllowedNeighborOfPos((int x, int y) pos) //O(1)
