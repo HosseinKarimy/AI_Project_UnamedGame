@@ -62,7 +62,7 @@ Board? HumanTurn(Player Turn, Player?[,] state)
 
     } while (!Positions.Contains((x, y)));
 
-    return new HumanBoard(state, (x, y), Turn);
+    return new HumanBoard(state, Turn).Select((x, y));
 }
 
 Board? ComputerTurn(Player Turn, Player?[,] state)

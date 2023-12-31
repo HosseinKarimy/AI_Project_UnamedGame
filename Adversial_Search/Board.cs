@@ -5,7 +5,7 @@ public class Board(Player?[,] state, Player Turn)
     public Player?[,] State = state;
     protected readonly Player Turn = Turn;
 
-    public IEnumerable<(int x, int y)>? GetAvailablePositions()
+    public IEnumerable<(int x, int y)>? GetAvailablePositions() //O(nm)
     {
         for (int i = 0; i < State.GetLength(0); i++)
         {
@@ -22,7 +22,7 @@ public class Board(Player?[,] state, Player Turn)
         }
     }
 
-    private IEnumerable<(int x, int y)>? AllowedNeighborOfPos((int x, int y) pos)
+    private IEnumerable<(int x, int y)>? AllowedNeighborOfPos((int x, int y) pos) //O(1)
     {
         IEnumerable<(int x, int y)> neighbors = pos.GetNeighborsOfPos(State.GetLength(0), State.GetLength(1));
         foreach (var neighbor in neighbors)
@@ -45,7 +45,7 @@ public static class BoardExtensions
         return newState;
     }
 
-    public static IEnumerable<(int x, int y)> GetNeighborsOfPos(this (int x, int y) pos, int rows, int columns)
+    public static IEnumerable<(int x, int y)> GetNeighborsOfPos(this (int x, int y) pos, int rows, int columns) //O(1)
     {
         //Up
         if (pos.x - 1 >= 0)

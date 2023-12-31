@@ -16,12 +16,10 @@ public class Game
         this.OTurn = OTurn;
         this.XTurn = XTurn;
         
-        var state = new Player?[4, 4];
-        state[2, 1] = Player.X;
-        state[1, 2] = Player.O;
-
-        state[1, 1] = Player.X;
-        state[1, 3] = Player.O;
+        int n = 4;
+        var state = new Player?[n, n];
+        state[n/2 -1 , n/2] = Player.X;
+        state[n / 2, n / 2 - 1] = Player.O;
 
         state[2, 2] = Player.X;
         state[0, 3] = Player.O;
