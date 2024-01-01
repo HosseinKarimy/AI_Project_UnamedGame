@@ -1,4 +1,6 @@
-﻿namespace Adversarial_Search;
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace Adversarial_Search;
 
 public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPositions = null, (int x, int y)[]? playerOPositions = null)
 {
@@ -11,12 +13,12 @@ public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPosit
     {
         if (PlayerXPositions is null || PlayerOPositions is null)
         {
-        for (int i = 0; i < State.GetLength(0); i++)
-        {
-            for (int j = 0; j < State.GetLength(1); j++)
+            for (int i = 0; i < State.GetLength(0); i++)
             {
-                    if (State[i, j] == Player.X)
+                for (int j = 0; j < State.GetLength(1); j++)
                 {
+                    if (State[i, j] == Player.X)
+                    {
                         PlayerXPositions = (PlayerXPositions ??= []).Append((i, j)).ToArray();
                     } else if (State[i, j] == Player.O)
                     {
@@ -32,9 +34,9 @@ public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPosit
             {
                 foreach (var pos in AllowedNeighborOfPos(xPos) ?? [])
                 {
-                        yield return pos;
-                    };
-                }
+                    yield return pos;
+                };
+            }
         } else
         {
             foreach (var xPos in PlayerOPositions!)
@@ -134,5 +136,24 @@ public static class BoardExtensions
             }
         }
         return copiedState;
+    }
+
+    public static int ToHash(this Player?[,] state)
+    {
+        string str = string.Empty;
+        foreach (var item in state)
+        {
+            if (item == Player.X)
+            {
+                str += "X";
+            } else if (item == Player.O)
+            {
+                str += "O";
+            } else
+            {
+                str += " ";
+            }
+        }
+        return str.GetHashCode();
     }
 }

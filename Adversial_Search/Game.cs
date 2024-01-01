@@ -16,13 +16,11 @@ public class Game
         this.OTurn = OTurn;
         this.XTurn = XTurn;
         
-        int n = 4;
+        int n = 6;
         var state = new Player?[n, n];
         state[n/2 -1 , n/2] = Player.X;
         state[n / 2, n / 2 - 1] = Player.O;
 
-        state[2, 2] = Player.X;
-        state[0, 3] = Player.O;
         CurrentBoard = new Board(state , CurrentTurn);
     }
 
