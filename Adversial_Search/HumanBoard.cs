@@ -6,7 +6,7 @@ public class HumanBoard : Board
     {        
     }
 
-    public HumanBoard? Select((int x , int y) selectedPos)
+    public HumanBoard Select((int x , int y) selectedPos)
     {
         return new HumanBoard(State.Play(Turn, selectedPos), Turn);
     }

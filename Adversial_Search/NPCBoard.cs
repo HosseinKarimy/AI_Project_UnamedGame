@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Adversarial_Search;
 
 public class NPCBoard : Board
 {
-    private static readonly Dictionary<int,int> CachedStates = [];
+    //private static readonly Dictionary<int,int> CachedStates = [];
+    public int Value { get; set; }
+    public NPCBoard? SelectedChild { get; set; }
     private readonly bool IsEnemy;
     private int? Alpha;
     private int? Beta;
@@ -15,7 +18,8 @@ public class NPCBoard : Board
         IsEnemy = isEnemy;
         Alpha = alpha;
         Beta = beta;
-        Depth = depth;        
+        Depth = depth;
+        CalculateValue();
     }
 
     public static NPCBoard Play(NPCBoard current, (int x , int y) selectedPosition , (int x, int y)[]? PlayerXPositions , (int x, int y)[]? PlayerOPositions)
@@ -33,42 +37,27 @@ public class NPCBoard : Board
 
     public NPCBoard? Select()
     {
-        return CalculateValue().selected;
+        return SelectedChild;
     }
 
-    public int GetValue()
+    private void CalculateValue()
     {
-        bool isCached = CachedStates.TryGetValue(State.ToHash(), out int value);
-        if (isCached)
-        {
-            return value;
-        } else
-        {
-            return CalculateValue().value;
-        }
-    }
-
-    private (NPCBoard? selected , int value) CalculateValue()
-    {
-        int value;
-        NPCBoard? selectedChild = null;
-
         //reach Max Depth
         if (Depth == 0)
         {
-            //Guess value of this State
+            //Guess Value of this State
             Dictionary<Player, int> status = State.GetStatus();
             var thisCount = status[Turn] + new Board(State , Turn).GetAvailablePositions()?.Count() ?? 0;
             var otherCount = status[Turn.Flip()] + new Board(State, Turn.Flip()).GetAvailablePositions()?.Count() ?? 0;
 
             if (IsEnemy)
             {
-                value = otherCount - thisCount;
+                Value = otherCount - thisCount;
             } else
             {
-                value = thisCount - otherCount;
+                Value = thisCount - otherCount;
             }
-            CachedStates.TryAdd(State.ToHash(), value);
+           // CachedStates.TryAdd(State.ToHash(), Value);
         } else
         {
             // get children
@@ -77,38 +66,37 @@ public class NPCBoard : Board
             //no children = terminal
             if (Children is null || Children.Count == 0)
             {
-                //calculate value of this terminal
+                //calculate Value of this terminal
                 Dictionary<Player, int> status = State.GetStatus();
                 var thisCount = status[Turn];
                 var otherCount = State.Length - thisCount;
 
                 if (IsEnemy)
                 {
-                    value = otherCount - thisCount;
+                    Value = otherCount - thisCount;
                 } else
                 {
-                    value = thisCount - otherCount;
+                    Value = thisCount - otherCount;
                 }
-                CachedStates.TryAdd(State.ToHash(), value);
+             //   CachedStates.TryAdd(State.ToHash(), Value);
             } else
             {
-                selectedChild = SelectChild(Children);
-                value = selectedChild.GetValue();
-                CachedStates.TryAdd(State.ToHash(), value);
+                SelectedChild = SelectChild(Children);
+                Value = SelectedChild.Value;
+             //   CachedStates.TryAdd(State.ToHash(), Value);
             }
         }
-        return (selectedChild , value);
     }
 
     private NPCBoard SelectChild(List<NPCBoard> children)
     {
         if (IsEnemy)
         {
-            return children!.MinBy(x => x.GetValue())!;
+            return children!.MinBy(x => x.Value)!;
 
         } else
         {
-            return children!.MaxBy(x => x.GetValue())!;            
+            return children!.MaxBy(x => x.Value)!;
         }
     }
 
@@ -119,14 +107,14 @@ public class NPCBoard : Board
         {
             if (Beta is not null && Alpha is not null && Beta <= Alpha)
                 break;         
-            //var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta, Depth - 1);
-            var child = NPCBoard.Play(this, pos , PlayerXPositions,PlayerOPositions);
+            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta, Depth - 1);
+            //var child = Play(this, pos , PlayerXPositions,PlayerOPositions);
             if (IsEnemy)
-            {
-                Beta = Math.Min(child.GetValue(), Beta ?? child.GetValue() + 1);
+            {   
+                Beta = Math.Min(child.Value, Beta ?? child.Value + 1);
             } else
             {
-                Alpha = Math.Max(child.GetValue(), Alpha ?? child.GetValue() - 1);
+                Alpha = Math.Max(child.Value, Alpha ?? child.Value - 1);
             }
             yield return child;
         }

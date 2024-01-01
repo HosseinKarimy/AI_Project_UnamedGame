@@ -1,7 +1,7 @@
 ﻿using Adversarial_Search;
 
 Game game = new(PrintEvent, OEvent, XEvent);
-game.Play();
+game.PlayAsync();
 
 return 0;
 

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_Project_UnamedGame", "AI_Project_UnamedGame\AI_Project_UnamedGame.csproj", "{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleUI", "AI_Project_UnamedGame\ConsoleUI.csproj", "{0A9FB6FB-EBC1-4D65-81D8-100C0EA011FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adversarial_Search", "Adversial_Search\Adversarial_Search.csproj", "{F038B27B-6E2E-4383-AB1B-1F343B36B997}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Adversarial_Search", "Adversial_Search\Adversarial_Search.csproj", "{F038B27B-6E2E-4383-AB1B-1F343B36B997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormUI", "WinFormUI\WinFormUI.csproj", "{55CF1D75-E7B1-4EC7-A3A8-B0F42F02A2AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F038B27B-6E2E-4383-AB1B-1F343B36B997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55CF1D75-E7B1-4EC7-A3A8-B0F42F02A2AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55CF1D75-E7B1-4EC7-A3A8-B0F42F02A2AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55CF1D75-E7B1-4EC7-A3A8-B0F42F02A2AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55CF1D75-E7B1-4EC7-A3A8-B0F42F02A2AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,59 +2,93 @@
 
 public class Game
 {
-    public Board CurrentBoard { get; private set; }
-    public Player CurrentTurn { get; private set; } = Player.O;
-    public EventHandler Print { get; set; }
-    public EventHandler OTurn { get; set; }
-    public EventHandler XTurn { get; set; }
+    private Player?[,] CurrentState;
+    private Player CurrentTurn = Player.O;
+    private readonly double DeadTime = 10;
+    private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
+    private EventHandler<PlayerTurnEventArgs> PlayerTurnEvent { get; set; }
+
+    private readonly PlayerType PlayerXType = PlayerType.NPC;
+    private readonly PlayerType PlayerOType = PlayerType.Human;
+
     private bool XDone = false;
     private bool ODone = false;
 
-    public Game(EventHandler Print, EventHandler OTurn, EventHandler XTurn)           
-    {
-        this.Print = Print;
-        this.OTurn = OTurn;
-        this.XTurn = XTurn;
-        
-        int n = 6;
-        var state = new Player?[n, n];
-        state[n/2 -1 , n/2] = Player.X;
-        state[n / 2, n / 2 - 1] = Player.O;
+    private ManualResetEvent manualResetEvent = new(false);
 
-        CurrentBoard = new Board(state , CurrentTurn);
+    public Game(EventHandler<ShowResultEventArgs> ShowResultEvent, EventHandler<PlayerTurnEventArgs> PlayerTurnEvent)
+    {
+        this.ShowResultEvent = ShowResultEvent;
+        this.PlayerTurnEvent = PlayerTurnEvent;
+
+        int n = 4;
+        CurrentState = new Player?[n, n];
+        CurrentState[n / 2 - 1, n / 2] = Player.X;
+        CurrentState[n / 2, n / 2 - 1] = Player.O;
+
+        //PlayerSelectedEvent += OnPlayerSelectedEvent;
     }
 
     public void Play()
     {
         while (!XDone || !ODone)
         {
-            Print.Invoke(CurrentBoard, new EventArgs());
-            if (!ODone && CurrentTurn == Player.O)
-            {
-                OTurn.Invoke(this, new EventArgs());
-            } else if(!XDone && CurrentTurn == Player.X)
-            {
-                XTurn.Invoke(this, new EventArgs());
-            }
-            CurrentTurn = CurrentTurn.Flip();
-        }
-        Print.Invoke(CurrentBoard, new EventArgs());
-    }
-
-    public void SetState(Player?[,]? State)
-    {
-        if (State is null)
-        {
+            IEnumerable<(int,int)>? availablePositions = new Board(CurrentState,CurrentTurn).GetAvailablePositions();
             if (CurrentTurn == Player.X)
             {
-                XDone = true;
+                if (availablePositions == null || !availablePositions.Any())
+                {
+                    XDone = true;
+                    CurrentTurn = CurrentTurn.Flip();
+                } else
+                {
+
+                    if (PlayerXType == PlayerType.Human)
+                    {
+                        PlayerTurnEvent.Invoke(this, new PlayerTurnEventArgs() { AvailablePositions = availablePositions, State = CurrentState });
+                        //wait until player select
+                        manualResetEvent.Reset();
+                        manualResetEvent.WaitOne();
+                    } else
+                    {
+                        CurrentState = new NPCBoard(CurrentState, CurrentTurn,false,null,null,10).Select()!.State;
+                        CurrentTurn = CurrentTurn.Flip();
+                    }
+                }
             } else
             {
-                ODone = true;
+                if (availablePositions == null || !availablePositions.Any())
+                {
+                    ODone = true;
+                    CurrentTurn = CurrentTurn.Flip();
+                } else
+                {
+                    if (PlayerOType == PlayerType.Human)
+                    {
+                        PlayerTurnEvent.Invoke(this, new PlayerTurnEventArgs() { AvailablePositions = availablePositions, State = CurrentState });
+                        //wait until player select
+                        manualResetEvent.Reset();
+                        manualResetEvent.WaitOne();
+                    } else
+                    {
+                        CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, null).Select()!.State;
+                        CurrentTurn = CurrentTurn.Flip();
+                    }
+                }
             }
-            return;
         }
-        CurrentBoard = new Board(State,CurrentTurn);
+        ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
+    }
+
+    public void OnPlayerSelected((int x, int y) selectedPos)
+    {
+        var availablePositions = new Board(CurrentState, CurrentTurn).GetAvailablePositions();
+        if (availablePositions!.Contains(selectedPos))
+        {
+            CurrentState = new HumanBoard(CurrentState, CurrentTurn).Select(selectedPos).State;
+            CurrentTurn = CurrentTurn.Flip();
+        }
+        manualResetEvent.Set();
     }
 
 }
