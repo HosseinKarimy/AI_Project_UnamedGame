@@ -2,13 +2,13 @@
 
 public class Game
 {
-
     private Player?[,] CurrentState;
     private Player CurrentTurn = Player.O;
     private readonly PlayerType PlayerXType = PlayerType.NPC;
     private readonly PlayerType PlayerOType = PlayerType.Human;
-    private readonly double DeadTime = 10;
+    private readonly double DeadTime = 5;
     private readonly int BoardSize = 5;
+    private readonly int? Depth = null;
 
     private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
     private EventHandler<PlayerTurnEventArgs> PlayerTurnEvent { get; set; }
@@ -57,7 +57,17 @@ public class Game
                         manualResetEvent.WaitOne();
                     } else
                     {
-                        CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, 10).Select()!.State;
+                        CancellationTokenSource cts = new();
+                        Task task = Task.Run(() =>
+                        {
+                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth).Select()!.State;
+                        }, cts.Token);
+
+                        if (!task.Wait(TimeSpan.FromSeconds(DeadTime)))
+                        {
+                            cts.Cancel();
+                            CurrentState = NPCBoard.RandomSelect(CurrentState, CurrentTurn)!.State;
+                        }
                         CurrentTurn = CurrentTurn.Flip();
                     }
                 }
@@ -77,7 +87,17 @@ public class Game
                         manualResetEvent.WaitOne();
                     } else
                     {
-                        CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, null).Select()!.State;
+                        CancellationTokenSource cts = new();
+                        Task task = Task.Run(() =>
+                        {
+                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth).Select()!.State;
+                        }, cts.Token);
+
+                        if (!task.Wait(TimeSpan.FromSeconds(DeadTime)))
+                        {
+                            cts.Cancel();
+                            CurrentState = NPCBoard.RandomSelect(CurrentState, CurrentTurn)!.State;
+                        }
                         CurrentTurn = CurrentTurn.Flip();
                     }
                 }

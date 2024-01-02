@@ -100,6 +100,13 @@ public static class BoardExtensions
         }
     }
 
+    public static (int x, int y) GetRandomPos(this IEnumerable<(int x, int y)> current) 
+    {
+        var count = current.Count();
+        var random =  new Random().Next(count);
+        return current.ElementAt(random);
+    }
+
     public static Player Flip(this Player current)
     {
         return current == Player.X ? Player.O : Player.X;

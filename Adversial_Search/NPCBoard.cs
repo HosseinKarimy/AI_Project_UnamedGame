@@ -19,7 +19,6 @@ public class NPCBoard : Board
         Alpha = alpha;
         Beta = beta;
         Depth = depth;
-        CalculateValue();
     }
 
     public static NPCBoard Play(NPCBoard current, (int x , int y) selectedPosition , (int x, int y)[]? PlayerXPositions , (int x, int y)[]? PlayerOPositions)
@@ -35,12 +34,24 @@ public class NPCBoard : Board
         return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, PlayerXPositions, PlayerOPositions);
     }
 
+    public static NPCBoard? RandomSelect(Player?[,] currentState , Player CurrentTurn)
+    {
+        var current = new NPCBoard(currentState, CurrentTurn,false,null,null,null,null,null);
+        var availablePos = current.GetAvailablePositions();
+        if (availablePos is null || !availablePos.Any())
+        {
+            return null;
+        }
+        return Play(current, availablePos.GetRandomPos(),null,null);
+    }
+
     public NPCBoard? Select()
     {
+        CalculateValue(true);
         return SelectedChild;
     }
 
-    private void CalculateValue()
+    public void CalculateValue(bool isSaveSelectedChild = false)
     {
         //reach Max Depth
         if (Depth == 0)
@@ -83,6 +94,10 @@ public class NPCBoard : Board
             {
                 SelectedChild = SelectChild(Children);
                 Value = SelectedChild.Value;
+                if (isSaveSelectedChild is false)
+                {
+                    SelectedChild = null;
+                }
              //   CachedStates.TryAdd(State.ToHash(), Value);
             }
         }
@@ -106,8 +121,9 @@ public class NPCBoard : Board
         foreach (var pos in availablePositions)
         {
             if (Beta is not null && Alpha is not null && Beta <= Alpha)
-                break;         
-            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy , Alpha , Beta, Depth - 1);
+                break;
+            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy, Alpha, Beta, Depth - 1);
+            child.CalculateValue();
             //var child = Play(this, pos , PlayerXPositions,PlayerOPositions);
             if (IsEnemy)
             {   
