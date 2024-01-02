@@ -1,45 +1,27 @@
 ﻿using Adversarial_Search;
 
-Game game = new(PrintEvent, OEvent, XEvent);
-game.PlayAsync();
+Game Game = new(ShowResultEvent: PrintEvent, PlayerTurnEvent: PlayerTurnEvent);
+await Task.Run(() => Game.Play());
 
 return 0;
 
 
-void PrintEvent(object? sender, EventArgs e)
+void PlayerTurnEvent(object? sender, PlayerTurnEventArgs e)
+{
+    Task.Run(() => Select(e.State, e.AvailablePositions , (sender as Game)!));    
+}
+
+void PrintEvent(object? sender, ShowResultEventArgs e)
 {
     Console.Clear();
-    Board board = (sender as Board)!;
-    Print(board.State);
+    Print(e.State);    
 }
 
-void XEvent(object? sender, EventArgs e)
+
+void Select(Player?[,] state, IEnumerable<(int x, int y)> availablePositions, Game game)
 {
-    Console.WriteLine("Player X Turn: ");
-
-    var game = (sender as Game)!;
-    var board = ComputerTurn(Player.X , game.CurrentBoard.State);
-    //var board = HumanTurn(Player.X, game.CurrentBoard.State);
-    game.SetState(board?.State);
-}
-
-void OEvent(object? sender, EventArgs e)
-{
-    Console.WriteLine("Player O Turn: ");
-
-    var game = (sender as Game)!;
-    var board = HumanTurn(Player.O, game.CurrentBoard.State);
-    //var board = ComputerTurn(Player.O, game.CurrentBoard.State);
-    game.SetState(board?.State);
-}
-
-Board? HumanTurn(Player Turn, Player?[,] state)
-{
-    var board = new Board(state , Turn);
-    var Positions = board.GetAvailablePositions();
-
-    if (Positions is null || !Positions.Any())
-        return null;
+    Console.Clear();
+    Print(state);
 
     int x, y;
     do
@@ -60,15 +42,11 @@ Board? HumanTurn(Player Turn, Player?[,] state)
             continue;
         }
 
-    } while (!Positions.Contains((x, y)));
+    } while (!availablePositions.Contains((x, y)));
 
-    return new HumanBoard(state, Turn).Select((x, y));
+    game.OnPlayerSelected((x, y));
 }
 
-Board? ComputerTurn(Player Turn, Player?[,] state)
-{
-    return new NPCBoard(state, Turn, false,null,null,null).Select();
-}
 
 void Print(Player?[,] State)
 {

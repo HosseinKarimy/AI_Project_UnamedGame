@@ -14,15 +14,6 @@ public partial class Form1 : Form
 
         Game = new(ShowResultEvent: PrintEvent, PlayerTurnEvent: PlayerTurnEvent);
         Task.Run(() => Game.Play());
-
-        //int n = 6;
-        //var state = new Player?[n, n];
-        //state[n / 2 - 1, n / 2] = Player.X;
-        //state[n / 2, n / 2 - 1] = Player.O;
-
-        //PrintForSelect(state, []);
-
-
     }
 
     private void PlayerTurnEvent(object? sender, PlayerTurnEventArgs e)
@@ -52,7 +43,15 @@ public partial class Form1 : Form
 
     void Print(Player?[,] State)
     {
-        
+        if (Panel_Main.InvokeRequired)
+        {
+            Panel_Main.Invoke(new Action(() => PrintForSelect(State, [])));
+        } else
+        {
+            Panel_Main.Controls.Clear();
+            TableLayoutPanel matrix = DrawMatrix(State, []);
+            Panel_Main.Controls.Add(matrix);
+        }
     }
 
     private static TableLayoutPanel DrawMatrix(Player?[,] state, IEnumerable<(int x, int y)> availablePositions)

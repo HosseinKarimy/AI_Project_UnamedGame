@@ -25,11 +25,9 @@ public class Game
         CurrentState = new Player?[n, n];
         CurrentState[n / 2 - 1, n / 2] = Player.X;
         CurrentState[n / 2, n / 2 - 1] = Player.O;
-
-        //PlayerSelectedEvent += OnPlayerSelectedEvent;
     }
 
-    public void Play()
+    public async Task Play()
     {
         while (!XDone || !ODone)
         {
