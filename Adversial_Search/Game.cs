@@ -2,15 +2,16 @@
 
 public class Game
 {
+
     private Player?[,] CurrentState;
     private Player CurrentTurn = Player.O;
-    private readonly double DeadTime = 10;
-    private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
-    private EventHandler<PlayerTurnEventArgs> PlayerTurnEvent { get; set; }
-
     private readonly PlayerType PlayerXType = PlayerType.NPC;
     private readonly PlayerType PlayerOType = PlayerType.Human;
+    private readonly double DeadTime = 10;
+    private readonly int BoardSize = 5;
 
+    private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
+    private EventHandler<PlayerTurnEventArgs> PlayerTurnEvent { get; set; }
     private bool XDone = false;
     private bool ODone = false;
 
@@ -21,17 +22,24 @@ public class Game
         this.ShowResultEvent = ShowResultEvent;
         this.PlayerTurnEvent = PlayerTurnEvent;
 
-        int n = 4;
-        CurrentState = new Player?[n, n];
-        CurrentState[n / 2 - 1, n / 2] = Player.X;
-        CurrentState[n / 2, n / 2 - 1] = Player.O;
+            CurrentState = new Player?[BoardSize, BoardSize];
+        if (BoardSize % 2 == 0 )
+        {
+            CurrentState[BoardSize / 2 - 1, BoardSize / 2] = Player.X;
+            CurrentState[BoardSize / 2, BoardSize / 2 - 1] = Player.O;
+        } else
+        {
+            CurrentState[0, 0] = Player.X;
+            CurrentState[BoardSize-1, BoardSize - 1] = Player.O;
+        }
+        
     }
 
-    public async Task Play()
+    public void Play()
     {
         while (!XDone || !ODone)
         {
-            IEnumerable<(int,int)>? availablePositions = new Board(CurrentState,CurrentTurn).GetAvailablePositions();
+            IEnumerable<(int, int)>? availablePositions = new Board(CurrentState, CurrentTurn).GetAvailablePositions();
             if (CurrentTurn == Player.X)
             {
                 if (availablePositions == null || !availablePositions.Any())
@@ -49,7 +57,7 @@ public class Game
                         manualResetEvent.WaitOne();
                     } else
                     {
-                        CurrentState = new NPCBoard(CurrentState, CurrentTurn,false,null,null,10).Select()!.State;
+                        CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, 10).Select()!.State;
                         CurrentTurn = CurrentTurn.Flip();
                     }
                 }
@@ -74,6 +82,7 @@ public class Game
                     }
                 }
             }
+            ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
         }
         ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
     }
