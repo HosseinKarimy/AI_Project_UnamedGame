@@ -39,6 +39,7 @@ public class Game
     {
         while (!XDone || !ODone)
         {
+            ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
             IEnumerable<(int, int)>? availablePositions = new Board(CurrentState, CurrentTurn).GetAvailablePositions();
             if (CurrentTurn == Player.X)
             {
@@ -102,7 +103,6 @@ public class Game
                     }
                 }
             }
-            ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
         }
         ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
     }

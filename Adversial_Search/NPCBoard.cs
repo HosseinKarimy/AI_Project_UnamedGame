@@ -5,7 +5,7 @@ namespace Adversarial_Search;
 
 public class NPCBoard : Board
 {
-    //private static readonly Dictionary<int,int> CachedStates = [];
+    private static readonly Dictionary<int,int> CachedStates = [];
     public int Value { get; set; }
     public NPCBoard? SelectedChild { get; set; }
     private readonly bool IsEnemy;
@@ -53,6 +53,17 @@ public class NPCBoard : Board
 
     public void CalculateValue(bool isSaveSelectedChild = false)
     {
+
+        if (isSaveSelectedChild is false)
+        {
+            var isCached = CachedStates.TryGetValue(State.ToHash(), out int value);
+            if (isCached)
+            {
+                Value = value;
+                return;
+            }
+        }
+
         //reach Max Depth
         if (Depth == 0)
         {
@@ -68,7 +79,7 @@ public class NPCBoard : Board
             {
                 Value = thisCount - otherCount;
             }
-           // CachedStates.TryAdd(State.ToHash(), Value);
+            CachedStates.TryAdd(State.ToHash(), Value);
         } else
         {
             // get children
@@ -89,7 +100,7 @@ public class NPCBoard : Board
                 {
                     Value = thisCount - otherCount;
                 }
-             //   CachedStates.TryAdd(State.ToHash(), Value);
+                CachedStates.TryAdd(State.ToHash(), Value);
             } else
             {
                 SelectedChild = SelectChild(Children);
@@ -98,7 +109,7 @@ public class NPCBoard : Board
                 {
                     SelectedChild = null;
                 }
-             //   CachedStates.TryAdd(State.ToHash(), Value);
+                CachedStates.TryAdd(State.ToHash(), Value);
             }
         }
     }
@@ -122,9 +133,9 @@ public class NPCBoard : Board
         {
             if (Beta is not null && Alpha is not null && Beta <= Alpha)
                 break;
-            var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy, Alpha, Beta, Depth - 1);
+            //var child = new NPCBoard(State.Play(Turn, pos), Turn.Flip(), !IsEnemy, Alpha, Beta, Depth - 1);
+            var child = Play(this, pos , PlayerXPositions,PlayerOPositions);
             child.CalculateValue();
-            //var child = Play(this, pos , PlayerXPositions,PlayerOPositions);
             if (IsEnemy)
             {   
                 Beta = Math.Min(child.Value, Beta ?? child.Value + 1);
