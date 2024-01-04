@@ -6,8 +6,8 @@ public class Game
     private Player CurrentTurn = Player.O;
     private readonly PlayerType PlayerXType = PlayerType.NPC;
     private readonly PlayerType PlayerOType = PlayerType.Human;
-    private readonly double DeadTime = 5;
-    private readonly int BoardSize = 5;
+    private readonly double DeadTime = 3;
+    private readonly int BoardSize = 6;
     private readonly int? Depth = null;
 
     private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
@@ -61,7 +61,7 @@ public class Game
                         CancellationTokenSource cts = new();
                         Task task = Task.Run(() =>
                         {
-                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth).Select()!.State;
+                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth , cts.Token).Select()!.State;
                         }, cts.Token);
 
                         if (!task.Wait(TimeSpan.FromSeconds(DeadTime)))
@@ -91,7 +91,7 @@ public class Game
                         CancellationTokenSource cts = new();
                         Task task = Task.Run(() =>
                         {
-                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth).Select()!.State;
+                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth, cts.Token).Select()!.State;
                         }, cts.Token);
 
                         if (!task.Wait(TimeSpan.FromSeconds(DeadTime)))

@@ -12,13 +12,15 @@ public class NPCBoard : Board
     private int? Alpha;
     private int? Beta;
     private readonly int? Depth;
+    private readonly CancellationToken? CancellationToken;
 
-    public NPCBoard(Player?[,] state, Player turn, bool isEnemy ,int? alpha ,int? beta , int? depth , (int x, int y)[]? playerXPositions = null, (int x, int y)[]? playerOPositions = null) : base(state,turn , playerXPositions , playerOPositions)
+    public NPCBoard(Player?[,] state, Player turn, bool isEnemy ,int? alpha ,int? beta , int? depth , CancellationToken? cancellationToken, (int x, int y)[]? playerXPositions = null, (int x, int y)[]? playerOPositions = null) : base(state,turn , playerXPositions , playerOPositions)
     {
         IsEnemy = isEnemy;
         Alpha = alpha;
         Beta = beta;
         Depth = depth;
+        CancellationToken = cancellationToken;
     }
 
     public static NPCBoard Play(NPCBoard current, (int x , int y) selectedPosition , (int x, int y)[]? PlayerXPositions , (int x, int y)[]? PlayerOPositions)
@@ -31,7 +33,7 @@ public class NPCBoard : Board
         {
             PlayerOPositions = PlayerOPositions?.Append(selectedPosition).ToArray();
         }
-        return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, PlayerXPositions, PlayerOPositions);
+        return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, current.CancellationToken ,PlayerXPositions, PlayerOPositions);
     }
 
     public static NPCBoard? RandomSelect(Player?[,] currentState , Player CurrentTurn)
@@ -53,7 +55,7 @@ public class NPCBoard : Board
 
     public void CalculateValue(bool isSaveSelectedChild = false)
     {
-
+        CancellationToken?.ThrowIfCancellationRequested();
         if (isSaveSelectedChild is false)
         {
             var isCached = CachedStates.TryGetValue(State.ToHash(), out int value);
