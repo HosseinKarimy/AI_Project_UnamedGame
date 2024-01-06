@@ -36,15 +36,32 @@ public class NPCBoard : Board
         return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, current.CancellationToken ,PlayerXPositions, PlayerOPositions);
     }
 
-    public static NPCBoard? RandomSelect(Player?[,] currentState , Player CurrentTurn)
+    public static NPCBoard? RandomSelect(Player?[,] currentState, Player CurrentTurn)
     {
-        var current = new NPCBoard(currentState, CurrentTurn,false,null,null,null,null,null);
-        var availablePos = current.GetAvailablePositions();
-        if (availablePos is null || !availablePos.Any())
+        var current = new NPCBoard(currentState, CurrentTurn, false, null, null, null, null, null);
+        var availableItems = current.GetAvailablePositions()!.ToList();
+
+        var enemy = CurrentTurn.Flip();
+        (int, int)[] enemyItems;
+        if (enemy == Player.X)
+    {
+            enemyItems = current.PlayerXPositions!;
+        } else
         {
-            return null;
+            enemyItems = current.PlayerOPositions!;
         }
-        return Play(current, availablePos.GetRandomPos(),null,null);
+
+        var enemyMean = enemyItems.GetMean();
+
+        var selected = availableItems!.MinBy(x=>x.DistanceFrom(enemyMean));
+
+
+        //var availablePos = current.GetAvailablePositions();
+        //if (availablePos is null || !availablePos.Any())
+        //{
+        //    return null;
+        //}
+        return Play(current, selected, null, null);
     }
 
     public NPCBoard? Select()

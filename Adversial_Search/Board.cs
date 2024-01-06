@@ -163,4 +163,25 @@ public static class BoardExtensions
         }
         return str.GetHashCode();
     }
+
+    public static (int x, int y) GetMean(this (int x, int y)[]? points)
+    {
+        int totalX = 0, totalY = 0;
+
+        foreach (var (x, y) in points ?? [])
+        {
+            totalX += x;
+            totalY += y;
+        }
+
+        int centerX = totalX / points.Length;
+        int centerY = totalY / points.Length;
+
+        return (centerX, centerY);
+    }
+
+    public static double DistanceFrom(this (int x, int y) source, (int x, int y) destination)
+    {
+        return Math.Sqrt(Math.Pow(source.x - destination.x, 2) + Math.Pow(source.y - destination.y, 2));
+    }
 }
