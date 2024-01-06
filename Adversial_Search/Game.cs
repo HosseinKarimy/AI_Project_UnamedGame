@@ -61,7 +61,7 @@ public class Game
                         CancellationTokenSource cts = new();
                         Task task = Task.Run(() =>
                         {
-                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth , cts.Token).Select()!.State;
+                            CurrentState = new NPCBoard(CurrentState, CurrentTurn, false, null, null, Depth, cts.Token).Select()!.State;
                         }, cts.Token);
 
                         if (!task.Wait(TimeSpan.FromSeconds(DeadTime)))
