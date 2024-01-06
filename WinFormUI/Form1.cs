@@ -1,56 +1,52 @@
 using Adversarial_Search;
-using System.ComponentModel;
-using static System.Windows.Forms.AxHost;
 
 namespace WinFormUI;
 
 public partial class Form1 : Form
 {
-    private static Game Game { get; set; }
+    private static Game? Game;
 
     public Form1()
     {
         InitializeComponent();
+        InitialForm();
+    }
 
-        Game = new(ShowResultEvent: PrintEvent, PlayerTurnEvent: PlayerTurnEvent);
-        Task.Run(() => Game.Play());
+    private void InitialForm()
+    {
+        foreach (var item in Enum.GetValues(typeof(Player)))
+        {
+            ComboBox_StarterPlayer.Items.Add(item);
+        }
+        foreach (var item in Enum.GetValues(typeof(PlayerType)))
+        {
+            ComboBox_PlayerBlueType.Items.Add(item);
+            ComboBox_PlayerRedType.Items.Add(item);
+        }
+        ComboBox_StarterPlayer.SelectedIndex = 1;
     }
 
     private void PlayerTurnEvent(object? sender, PlayerTurnEventArgs e)
     {
-        PrintForSelect(e.State, e.AvailablePositions);
+        Print(e.State, e.AvailablePositions);
     }
 
     private void PrintEvent(object? sender, ShowResultEventArgs e)
-    {        
-        Print(e.State);
+    {
+        Print(e.State, null);
     }
 
-
-    private void PrintForSelect(Player?[,] state, IEnumerable<(int x, int y)> availablePositions)
+    void Print(Player?[,] State , IEnumerable<(int x, int y)>? availablePositions)
     {
         if (Panel_Main.InvokeRequired)
         {
-            Panel_Main.Invoke(new Action(() => PrintForSelect(state, availablePositions)));
+            Panel_Game.Invoke(new Action(() => Print(State, availablePositions ?? [])));
         } else
         {
-            Panel_Main.Controls.Clear();
-            TableLayoutPanel matrix = DrawMatrix(state, availablePositions);
-            Panel_Main.Controls.Add(matrix);
-        }
-    }
-
-
-    void Print(Player?[,] State)
-    {
-        if (Panel_Main.InvokeRequired)
-        {
-            Panel_Main.Invoke(new Action(() => PrintForSelect(State, [])));
-        } else
-        {
-            Panel_Main.Controls.Clear();
-            TableLayoutPanel matrix = DrawMatrix(State, []);
-            Panel_Main.Controls.Add(matrix);
+            Panel_Game.Controls.Clear();
+            TableLayoutPanel matrix = DrawMatrix(State, availablePositions ?? []);
+            Panel_Game.Controls.Add(matrix);
+           // UpdateStatus(State);
         }
     }
 
@@ -85,7 +81,39 @@ public partial class Form1 : Form
 
     private static void ItemClicked(object? sender, EventArgs e)
     {
-        var selectedPos = ((int x, int y))(sender as Control)!.Tag!;        
+        var selectedPos = ((int x, int y))(sender as Control)!.Tag!;
         Game.OnPlayerSelected(selectedPos);
+    }
+
+    private void Button_Save_Click(object sender, EventArgs e)
+    {
+        if (Game is null)
+        {
+            Game = new(ShowResultEvent: PrintEvent, PlayerTurnEvent: PlayerTurnEvent);
+            SetSetting();
+            Task.Run(() => Game.Play());
+        } else
+        {
+            SetSetting();
+        }
+    }
+
+    private void SetSetting()
+    {
+        PlayerType RedType = (PlayerType?)ComboBox_PlayerRedType.SelectedItem ?? PlayerType.NPC;
+        PlayerType BlueType = (PlayerType?)ComboBox_PlayerBlueType.SelectedItem ?? PlayerType.Human;
+        Player Starter = (Player?)ComboBox_StarterPlayer.SelectedItem ?? Player.O;
+        double DeadTime = (double)NumericUpDown_PlayerTime.Value;
+        int BoardSize = (int)NemuricUpDown_BoardSize.Value;
+
+
+        Game!.SetSetting(RedType, BlueType, Starter, DeadTime, BoardSize);
+        NemuricUpDown_BoardSize.Enabled = false;
+        ComboBox_StarterPlayer.Enabled = false;
+    }
+
+    private void Button_Reset_Click(object sender, EventArgs e)
+    {
+
     }
 }

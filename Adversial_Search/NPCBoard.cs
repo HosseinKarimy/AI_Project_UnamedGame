@@ -33,7 +33,7 @@ public class NPCBoard : Board
         {
             PlayerOPositions = PlayerOPositions?.Append(selectedPosition).ToArray();
         }
-        return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, current.CancellationToken ,PlayerXPositions, PlayerOPositions);
+        return new NPCBoard(newState, current.Turn.Flip(), !current.IsEnemy, current.Alpha, current.Beta, current.Depth - 1, current.CancellationToken, PlayerXPositions, PlayerOPositions);
     }
 
     public static NPCBoard? RandomSelect(Player?[,] currentState, Player CurrentTurn)
@@ -44,7 +44,7 @@ public class NPCBoard : Board
         var enemy = CurrentTurn.Flip();
         (int, int)[] enemyItems;
         if (enemy == Player.X)
-    {
+        {
             enemyItems = current.PlayerXPositions!;
         } else
         {
@@ -156,7 +156,7 @@ public class NPCBoard : Board
             var child = Play(this, pos, PlayerXPositions, PlayerOPositions);
             child.CalculateValue();
             if (IsEnemy)
-            {   
+            {
                 Beta = Math.Min(child.Value, Beta ?? child.Value + 1);
             } else
             {
@@ -164,6 +164,6 @@ public class NPCBoard : Board
             }
             yield return child;
         }
-    }    
+    }
 }
 

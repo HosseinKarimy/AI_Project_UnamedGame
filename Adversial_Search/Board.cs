@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace Adversarial_Search;
+﻿namespace Adversarial_Search;
 
 public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPositions = null, (int x, int y)[]? playerOPositions = null)
 {
@@ -12,21 +10,7 @@ public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPosit
     public IEnumerable<(int x, int y)>? GetAvailablePositions() //O(nm)
     {
         if (PlayerXPositions is null || PlayerOPositions is null)
-        {
-            for (int i = 0; i < State.GetLength(0); i++)
-            {
-                for (int j = 0; j < State.GetLength(1); j++)
-                {
-                    if (State[i, j] == Player.X)
-                    {
-                        PlayerXPositions = (PlayerXPositions ??= []).Append((i, j)).ToArray();
-                    } else if (State[i, j] == Player.O)
-                    {
-                        PlayerOPositions = (PlayerOPositions ??= []).Append((i, j)).ToArray();
-                    }
-                }
-            }
-        }        
+            FindPlayersItems();
 
         if (Turn == Player.X)
         {
@@ -48,6 +32,23 @@ public class Board(Player?[,] state, Player turn, (int x, int y)[]? playerXPosit
             }
         }
 
+    }
+
+    private void FindPlayersItems()
+    {
+        for (int i = 0; i < State.GetLength(0); i++)
+        {
+            for (int j = 0; j < State.GetLength(1); j++)
+            {
+                if (State[i, j] == Player.X)
+                {
+                    PlayerXPositions = (PlayerXPositions ??= []).Append((i, j)).ToArray();
+                } else if (State[i, j] == Player.O)
+                {
+                    PlayerOPositions = (PlayerOPositions ??= []).Append((i, j)).ToArray();
+                }
+            }
+        }
     }
 
     private IEnumerable<(int x, int y)>? AllowedNeighborOfPos((int x, int y) pos) //O(1)
@@ -100,10 +101,10 @@ public static class BoardExtensions
         }
     }
 
-    public static (int x, int y) GetRandomPos(this IEnumerable<(int x, int y)> current) 
+    public static (int x, int y) GetRandomPos(this IEnumerable<(int x, int y)> current)
     {
         var count = current.Count();
-        var random =  new Random().Next(count);
+        var random = new Random().Next(count);
         return current.ElementAt(random);
     }
 

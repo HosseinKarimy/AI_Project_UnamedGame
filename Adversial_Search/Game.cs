@@ -3,11 +3,11 @@
 public class Game
 {
     private Player?[,] CurrentState;
-    private Player CurrentTurn = Player.O;
-    private readonly PlayerType PlayerXType = PlayerType.NPC;
-    private readonly PlayerType PlayerOType = PlayerType.Human;
-    private readonly double DeadTime = 3;
-    private readonly int BoardSize = 6;
+    public Player CurrentTurn { get; private set; } = Player.O;
+    public PlayerType PlayerXType { get; private set; } = PlayerType.NPC;
+    public PlayerType PlayerOType { get; private set; } = PlayerType.Human;
+    public double DeadTime { get; private set; } = 3;
+    public int BoardSize { get; private set; } = 5;
     private readonly int? Depth = null;
 
     private EventHandler<ShowResultEventArgs> ShowResultEvent { get; set; }
@@ -20,23 +20,21 @@ public class Game
     public Game(EventHandler<ShowResultEventArgs> ShowResultEvent, EventHandler<PlayerTurnEventArgs> PlayerTurnEvent)
     {
         this.ShowResultEvent = ShowResultEvent;
-        this.PlayerTurnEvent = PlayerTurnEvent;
+        this.PlayerTurnEvent = PlayerTurnEvent;    
+    }
 
-            CurrentState = new Player?[BoardSize, BoardSize];
-        if (BoardSize % 2 == 0 )
-        {
-            CurrentState[BoardSize / 2 - 1, BoardSize / 2] = Player.X;
-            CurrentState[BoardSize / 2, BoardSize / 2 - 1] = Player.O;
-        } else
-        {
-            CurrentState[0, 0] = Player.X;
-            CurrentState[BoardSize-1, BoardSize - 1] = Player.O;
-        }
-        
+    public void SetSetting(PlayerType PlayerXType, PlayerType PlayerOType, Player CurrentTurn, double DeadTime, int BoardSize)
+    {
+        this.BoardSize = BoardSize;
+        this.CurrentTurn = CurrentTurn;
+        this.DeadTime = DeadTime;
+        this.PlayerXType = PlayerXType;
+        this.PlayerOType = PlayerOType;
     }
 
     public void Play()
     {
+        InitialState();
         while (!XDone || !ODone)
         {
             ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
@@ -105,6 +103,30 @@ public class Game
             }
         }
         ShowResultEvent.Invoke(this, new ShowResultEventArgs() { State = CurrentState });
+    }
+
+    private void InitialState()
+    {
+        CurrentState = new Player?[BoardSize, BoardSize];
+        var rand = new Random();
+        (int x, int y) XPos = (rand.Next(BoardSize), rand.Next(BoardSize));
+        CurrentState[XPos.x, XPos.y] = Player.X;
+        (int x, int y) OPos;
+        do
+        {
+            OPos = (rand.Next(BoardSize), rand.Next(BoardSize));
+        } while (XPos.x == OPos.x && XPos.y == OPos.y);
+        CurrentState[OPos.x, OPos.y] = Player.O;
+
+        //if (BoardSize % 2 == 0)
+        //{
+        //    CurrentState[BoardSize / 2 - 1, BoardSize / 2] = Player.X;
+        //    CurrentState[BoardSize / 2, BoardSize / 2 - 1] = Player.O;
+        //} else
+        //{
+        //    CurrentState[0, 0] = Player.X;
+        //    CurrentState[BoardSize - 1, BoardSize - 1] = Player.O;
+        //}
     }
 
     public void OnPlayerSelected((int x, int y) selectedPos)
