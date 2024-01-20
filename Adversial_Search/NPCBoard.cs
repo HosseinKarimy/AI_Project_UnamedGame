@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Adversarial_Search;
+﻿namespace Adversarial_Search;
 
 public class NPCBoard : Board
 {
